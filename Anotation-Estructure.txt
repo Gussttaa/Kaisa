@@ -1,0 +1,16 @@
+
+Fluxo de dados para o Re-treinamento ------------------------------------
+
+.tflite (só para inferência no C++)  ←── exportado de ──  modelo original (.h5 ou SavedModel)
+
+📦 buffer de dados novos
+         ↓
+Python reprocessa + treina usando o modelo original (.h5)
+         ↓
+Novo modelo atualizado (.tflite)
+         ↓
+Substitui o antigo na inferência em C++
+
+
+
+LibTorch C++ para uso e auto adaptação da ia adicionando mais classes, neuronios, entradas e saídas 
