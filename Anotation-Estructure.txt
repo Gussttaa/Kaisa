@@ -14,3 +14,14 @@ Substitui o antigo na inferência em C++
 
 
 LibTorch C++ para uso e auto adaptação da ia adicionando mais classes, neuronios, entradas e saídas 
+
+-----------
+
+Anotações c++:
+
+Pra corrigir e ser exibido caracteres especiais como o acento no "Olá mundo" no terminal de compilação:
+
+Inclua a biblioteca #include <locale.h>
+Depois dentro do main: setlocale(LC_ALL, "Portuguese");
+
+Em seguida: CRTL+Shift+P - Change File Encoding - Save Witch Encoding - Wetern Iso 8859-1
