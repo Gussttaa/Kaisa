@@ -1,4 +1,12 @@
 
+int vidas=0; \\10, 25
+char letra='A';\\'A' -> Letras
+double decimal = 5.2; \\2.4999999 -> Mais preciso
+float decimal = 5.2; \\2.5 -> Menos preciso
+bool vivo = True; \\Verdadeiro ou Falso
+string nome = "Luiz"; \\"Luiz" -> Nome
+
+
 Fluxo de dados para o Re-treinamento ------------------------------------
 
 .tflite (só para inferência no C++)  ←── exportado de ──  modelo original (.h5 ou SavedModel)
