@@ -1,3 +1,6 @@
 {
-    "C_Cpp.errorSquiggles": "enabled"
+    "C_Cpp.errorSquiggles": "enabled",
+    "python.analysis.extraPaths": [
+        "./Models/SenseVoice-main/demo_lib"
+    ]
 }
