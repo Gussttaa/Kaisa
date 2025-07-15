@@ -14,8 +14,7 @@ import torchaudio
 
 from funasr import AutoModel
 
-model = "iic/SenseVoiceSmall"
-model = AutoModel(model=model,
+model = AutoModel(model="iic/SenseVoiceSmall",
 				  vad_model="iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
 				  vad_kwargs={"max_single_segment_time": 30000},
 				  trust_remote_code=True,
@@ -218,7 +217,7 @@ html_content = """
 
 
 def launch():
-	with gr.Blocks(theme=gr.themes.Soft()) as demo:
+	with gr.Blocks() as demo:
 		# gr.Markdown(description)
 		gr.HTML(html_content)
 		with gr.Row():

@@ -1,6 +1,11 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
+<<<<<<< HEAD
     "cSpell.words": [
         "funasr"
+=======
+    "python.analysis.extraPaths": [
+        "./Models/SenseVoice-main/demo_lib"
+>>>>>>> 51b9ef701d2a43848c9df6a379a328be4e910de2
     ]
 }
