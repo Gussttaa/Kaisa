@@ -17,3 +17,10 @@ LibTorch C++ para uso e auto adaptação da ia adicionando mais classes, neuroni
  
  C++
  CMake + LibTorch/ggml
+
+ (fc1) aparentemente, nível de camada totalmente conectada que é utilizada junto do 'self.relu'
+
+ to.(device0) -> onde 'device' é a gpu para a qual irá o processamento e '0' é a númeração dela em relação a quantidade
+ Abreviação para o uso posterior
+ device0 = torch.device('cuda:0')
+ device1 = torch.device('cuda:1')

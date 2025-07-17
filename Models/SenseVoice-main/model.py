@@ -22,7 +22,7 @@ class SinusoidalPositionEncoder(torch.nn.Module):
         pass
 
     def encode(
-        self, positions: torch.Tensor = None, depth: int = None, dtype: torch.dtype = torch.float32
+        self, positions: torch.Tensor, depth: int = 80, dtype: torch.dtype = torch.float32
     ):
         batch_size = positions.size(0)
         positions = positions.type(dtype)
@@ -241,23 +241,24 @@ class MultiHeadedAttentionSANM(nn.Module):
         """
         q_h, k_h, v_h, v = self.forward_qkv(x)
         if chunk_size is not None and look_back > 0 or look_back == -1:
-            if cache is not None:
-                k_h_stride = k_h[:, :, : -(chunk_size[2]), :]
-                v_h_stride = v_h[:, :, : -(chunk_size[2]), :]
-                k_h = torch.cat((cache["k"], k_h), dim=2)
-                v_h = torch.cat((cache["v"], v_h), dim=2)
+            if chunk_size is not None:
+                if cache is not None:
+                    k_h_stride = k_h[:, :, : -(chunk_size[2]), :]
+                    v_h_stride = v_h[:, :, : -(chunk_size[2]), :]
+                    k_h = torch.cat((cache["k"], k_h), dim=2)
+                    v_h = torch.cat((cache["v"], v_h), dim=2)
 
-                cache["k"] = torch.cat((cache["k"], k_h_stride), dim=2)
-                cache["v"] = torch.cat((cache["v"], v_h_stride), dim=2)
-                if look_back != -1:
-                    cache["k"] = cache["k"][:, :, -(look_back * chunk_size[1]) :, :]
-                    cache["v"] = cache["v"][:, :, -(look_back * chunk_size[1]) :, :]
-            else:
-                cache_tmp = {
-                    "k": k_h[:, :, : -(chunk_size[2]), :],
-                    "v": v_h[:, :, : -(chunk_size[2]), :],
-                }
-                cache = cache_tmp
+                    cache["k"] = torch.cat((cache["k"], k_h_stride), dim=2)
+                    cache["v"] = torch.cat((cache["v"], v_h_stride), dim=2)
+                    if look_back != -1:
+                        cache["k"] = cache["k"][:, :, -(look_back * chunk_size[1]) :, :]
+                        cache["v"] = cache["v"][:, :, -(look_back * chunk_size[1]) :, :]
+                else:
+                    cache_tmp = {
+                        "k": k_h[:, :, : -(chunk_size[2]), :],
+                        "v": v_h[:, :, : -(chunk_size[2]), :],
+                    }
+                    cache = cache_tmp
         fsmn_memory = self.forward_fsmn(v, None)
         q_h = q_h * self.d_k ** (-0.5)
         scores = torch.matmul(q_h, k_h.transpose(-2, -1))
@@ -583,13 +584,13 @@ class SenseVoiceSmall(nn.Module):
 
     def __init__(
         self,
-        specaug: str = None,
-        specaug_conf: dict = None,
-        normalize: str = None,
-        normalize_conf: dict = None,
-        encoder: str = None,
-        encoder_conf: dict = None,
-        ctc_conf: dict = None,
+        specaug: Optional[str] = None,
+        specaug_conf: Optional[dict] = None,
+        normalize: Optional[str] = None,
+        normalize_conf: dict = {},
+        encoder: Optional[str] = None,
+        encoder_conf: dict = {},
+        ctc_conf: dict = {},
         input_size: int = 80,
         vocab_size: int = -1,
         ignore_id: int = -1,
@@ -604,13 +605,27 @@ class SenseVoiceSmall(nn.Module):
 
         if specaug is not None:
             specaug_class = tables.specaug_classes.get(specaug)
-            specaug = specaug_class(**specaug_conf)
+            if specaug_class is not None:
+                if specaug_conf is not None and not isinstance(specaug_conf, dict):
+                    specaug_conf = dict(specaug_conf)
+                if specaug_conf is not None:
+                    specaug_conf = {str(k): v for k, v in specaug_conf.items()}
+                    specaug = specaug_class(**specaug_conf)
+                else:
+                    specaug = specaug_class()
+            else:
+                specaug = None
         if normalize is not None:
             normalize_class = tables.normalize_classes.get(normalize)
-            normalize = normalize_class(**normalize_conf)
+            if normalize_class is not None:
+                normalize = normalize_class(**normalize_conf)
+            else:
+                normalize = None
         encoder_class = tables.encoder_classes.get(encoder)
-        encoder = encoder_class(input_size=input_size, **encoder_conf)
-        encoder_output_size = encoder.output_size()
+        if encoder_class is None:
+            raise ValueError(f"Encoder class '{encoder}' not found in tables.encoder_classes. Available: {list(tables.encoder_classes.keys())}")
+        encoder_instance = encoder_class(input_size=input_size, **encoder_conf)
+        encoder_output_size = encoder_instance.output_size()
 
         if ctc_conf is None:
             ctc_conf = {}
